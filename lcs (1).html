@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LCS Checker</title>
+    <style>
+      body {
+        background-color: #9f88e9;
+        font-family: Arial, sans-serif;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        overflow-y: scroll;
+      }
+
+      .container {
+        text-align: center;
+        background-color: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        max-width: 600px;
+      }
+
+      .title {
+        font-size: 5em;
+        margin-bottom: 20px;
+        color: #ffffff;
+      }
+
+      .container input[type="text"] {
+        width: 100%;
+        padding: 15px;
+        margin: 10px 0;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+        box-sizing: border-box;
+      }
+
+      .button-compare {
+        background-color: #614dc6;
+        color: #ffffff;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1em;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      .button-compare:hover {
+        background-color: #503ba0;
+      }
+
+      .results {
+        margin-top: 40px;
+        display: flex;
+        flex-direction: column;
+        row-gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .results-wrapper {
+        display: flex;
+        align-items: center;
+        column-gap: 40px;
+      }
+
+      .results-container {
+        text-align: center;
+        background-color: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 200px;
+        height: 100px;
+        color: black;
+      }
+
+      .background {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: -1;
+      }
+
+      .circle {
+        position: absolute;
+        background-color: #d1afe5;
+        border-radius: 50%;
+        opacity: 0.6;
+      }
+
+      .circle1 {
+        width: 200px;
+        height: 200px;
+        top: 10%;
+        left: 10%;
+      }
+
+      .circle2 {
+        width: 150px;
+        height: 150px;
+        bottom: 20%;
+        right: 15%;
+      }
+
+      .circle3 {
+        width: 100px;
+        height: 100px;
+        top: 40%;
+        right: 20%;
+      }
+
+      .circle4 {
+        width: 80px;
+        height: 80px;
+        bottom: 10%;
+        left: 25%;
+      }
+
+      .wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .input-wrap {
+        width: 100%;
+      }
+
+      .results-output {
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background">
+      <div class="circle circle1"></div>
+      <div class="circle circle2"></div>
+      <div class="circle circle3"></div>
+      <div class="circle circle4"></div>
+    </div>
+    <div class="wrapper">
+      <h1 class="title">LCS Checker</h1>
+      <div class="input-wrap">
+        <h2>First Input</h2>
+        <div class="container">
+          <input
+            type="text"
+            id="string1"
+            placeholder="Write your words here..."
+          />
+        </div>
+      </div>
+      <div class="input-wrap">
+        <h2>Second Input</h2>
+        <div class="container">
+          <input
+            type="text"
+            id="string2"
+            placeholder="Write your words here..."
+          />
+        </div>
+      </div>
+      <button onclick="calculateLCS()" class="button-compare">Compare</button>
+      <div class="results">
+        <div class="results-wrapper">
+          <div class="results-output">
+            <h2>Brute Force</h2>
+            <div class="results-container">
+              <p id="bruteForceResult"></p>
+            </div>
+          </div>
+          <div class="results-output">
+            <h2>Dynamic Programming</h2>
+            <div class="results-container">
+              <p id="dynamicProgrammingResult"></p>
+            </div>
+          </div>
+        </div>
+        <div class="results-wrapper">
+          <div class="results-output">
+            <p>Time Taken:</p>
+            <div class="results-container">
+              <p id="bruteForceTime"></p>
+            </div>
+          </div>
+          <div class="results-output">
+            <p>Time Taken:</p>
+            <div class="results-container">
+              <p id="dynamicProgrammingTime"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function lcsBruteForce(str1, str2) {
+        function subsequences(str) {
+          let subs = [];
+          let n = str.length;
+          let max = 1 << n;
+
+          for (let i = 0; i < max; i++) {
+            let sub = "";
+            for (let j = 0; j < n; j++) {
+              if (i & (1 << j)) {
+                sub += str[j];
+              }
+            }
+            subs.push(sub);
+          }
+          return subs;
+        }
+
+        let subs1 = subsequences(str1);
+        let subs2 = subsequences(str2);
+        let lcs = "";
+
+        for (let sub1 of subs1) {
+          if (subs2.includes(sub1) && sub1.length > lcs.length) {
+            lcs = sub1;
+          }
+        }
+
+        return lcs;
+      }
+
+      function lcsDynamicProgramming(str1, str2) {
+        let m = str1.length;
+        let k = str2.length;
+        let dp = Array(m + 1)
+          .fill(null)
+          .map(() => Array(k + 1).fill(0));
+
+        for (let i = 1; i <= m; i++) {
+          for (let j = 1; j <= k; j++) {
+            if (str1[i - 1] === str2[j - 1]) {
+              dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+              dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+          }
+        }
+
+        let lcs = "";
+        let i = m,
+          j = k;
+        while (i > 0 && j > 0) {
+          if (str1[i - 1] === str2[j - 1]) {
+            lcs = str1[i - 1] + lcs;
+            i--;
+            j--;
+          } else if (dp[i - 1][j] > dp[i][j - 1]) {
+            i--;
+          } else {
+            j--;
+          }
+        }
+
+        return lcs;
+      }
+
+      function calculateLCS() {
+        let str1 = document.getElementById("string1").value;
+        let str2 = document.getElementById("string2").value;
+
+        let start = performance.now();
+        let bruteForceLCS = lcsBruteForce(str1, str2);
+        let end = performance.now();
+        let bruteForceTime = end - start;
+
+        start = performance.now();
+        let dynamicProgrammingLCS = lcsDynamicProgramming(str1, str2);
+        end = performance.now();
+        let dynamicProgrammingTime = end - start;
+
+        document.getElementById(
+          "bruteForceResult"
+        ).innerText = `${bruteForceLCS}`;
+        document.getElementById(
+          "bruteForceTime"
+        ).innerText = `${bruteForceTime} ms`;
+        document.getElementById(
+          "dynamicProgrammingResult"
+        ).innerText = `${dynamicProgrammingLCS}`;
+        document.getElementById(
+          "dynamicProgrammingTime"
+        ).innerText = `${dynamicProgrammingTime} ms`;
+      }
+    </script>
+  </body>
+</html>
